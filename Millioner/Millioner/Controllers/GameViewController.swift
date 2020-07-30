@@ -66,25 +66,27 @@ class GameViewController: UIViewController {
                           height: self.view.frame.width * 0.35)
         let space = self.view.frame.width * 0.09
         
-        var maxX:CGFloat = 0.0
+        
         changeAswerLabel(text: quest.answer)
         for (key,value) in quest.answerOptions{
             gameQuestionViews.append(QuestionView(frame: CGRect(origin: CGPoint(), size: size), answer: key, value))
         }
-        var originY:CGFloat = 0.0
-        gameQuestionViews.forEach{[weak self] in
-            guard let self = self else {return}
-            $0.frame.origin.x = maxX
-            $0.frame.origin.y = originY
-            foundation.frame.size.width = $0.frame.maxX
-            maxX = foundation.frame.size.width + space
-            if maxX > self.view.frame.width * 0.85{
-                maxX = foundation.frame.minX
-                originY = $0.frame.maxY + space
-            }
-            foundation.frame.size.height = $0.frame.maxY
-            foundation.addSubview($0)
+        var maxX: CGFloat = 0.0
+        var originY: CGFloat = 0.0
+        for (number, view) in gameQuestionViews.enumerated(){
+            view.frame.origin.x = maxX
+            view.frame.origin.y = originY
+            foundation.frame.size.width = foundation.frame.width < view.frame.maxX ? view.frame.maxX : foundation.frame.width
+            foundation.frame.size.height = foundation.frame.height < view.frame.maxY ? view.frame.maxY : foundation.frame.height
             
+            if number % 2 == 0{
+                maxX += view.frame.maxX + space
+            }else{
+                maxX = 0
+                originY += view.frame.maxY + space
+            }
+            
+            foundation.addSubview(view)
         }
         foundation.center.x = self.view.frame.width / 2
         foundation.frame.origin.y = labelAnswer.frame.maxY + self.view.frame.width * 0.09
