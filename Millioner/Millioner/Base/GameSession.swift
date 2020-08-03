@@ -15,7 +15,7 @@ class GameSession: Codable{
             if newValue > questions.count - 1 {answerRight = questions.count - 1}
         }
     }
-    
+    var prize = 0
     var rightProcent:Int{ questions.count * answerRight / 100 }
     
     func addQuestion(question: Question) {

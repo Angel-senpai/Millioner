@@ -10,6 +10,6 @@ import Foundation
 
 
 protocol GameSessionProtocol {
-    var rightAnswers: Int {get}
-    var answersCount: Int {get}
+    var rightAnswers: Int { get }
+    var prize: Int { get }
 }

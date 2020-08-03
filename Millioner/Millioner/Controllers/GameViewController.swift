@@ -11,14 +11,22 @@ import UIKit
 class GameViewController: UIViewController {
 
     var labelAnswer: UILabel!
-    var delegate: NSObject!
+    var delegate = GameSessionDelegate()
     var answerButton: UIButton!
     var gameSession: GameSession!
     var gameQuestionViews = [QuestionView]()
     var questCounter = 0{
         didSet(newValue){
             if newValue >= gameSession.questions.count - 1{
+                delegate.rightAnswers = questCounter
+                delegate.prize = questCounter
                 endGame()
+            }else{
+                changeAswerLabel(text: gameSession.questions[questCounter].answer)
+                for (i,j) in gameSession.questions[questCounter].answerOptions.enumerated(){
+                    gameQuestionViews[i].label.text = j.key
+                    gameQuestionViews[i].answerTrue = j.value
+                }
             }
         }
     }
@@ -28,7 +36,6 @@ class GameViewController: UIViewController {
         gameSession = Game.instance.gameSession
         let gradientLayer = CAGradientLayer()
         gradientLayer.frame = self.view.bounds
-        
         gradientLayer.colors = [#colorLiteral(red: 0.6941176471, green: 0.9294117647, blue: 0.9647058824, alpha: 1).cgColor,#colorLiteral(red: 0.6784313725, green: 0.7176470588, blue: 0.9568627451, alpha: 1).cgColor]
         gradientLayer.startPoint = CGPoint(x: 1, y: 0.5)
         gradientLayer.endPoint = CGPoint(x: 0.5, y: 1)
@@ -95,7 +102,7 @@ class GameViewController: UIViewController {
     
     private func createButton(){
         let buttonFrame = CGRect(x: 0, y: 0,
-        width: self.view.frame.width * 0.8, height: self.view.frame.width * 0.1)
+        width: self.view.frame.width * 0.8, height: self.view.frame.width * 0.15)
         answerButton = UIButton(frame: buttonFrame)
         answerButton.setTitleColor(.black, for: .normal)
         answerButton.setTitle("Ответить", for: .normal)
@@ -116,21 +123,24 @@ class GameViewController: UIViewController {
         self.dismiss(animated: true, completion: nil)
     }
     
+    private func checkAnswers()-> Bool{
+        let selectedQuestions = gameQuestionViews.filter{$0.selected}
+        var answerIsRight = selectedQuestions.first?.answerTrue ?? false
+        for i in selectedQuestions{
+            if i.answerTrue{
+                answerIsRight = answerIsRight && i.answerTrue
+            }
+        }
+        return answerIsRight
+    }
+    
     
     @objc private func nextQuestion(){
+        if checkAnswers(){
+            delegate.rightAnswers += 1
+        }
+        print(delegate.rightAnswers)
         questCounter += 1
-        
-        
     }
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
-    }
-    */
 
 }

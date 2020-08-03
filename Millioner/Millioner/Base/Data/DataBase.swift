@@ -15,7 +15,6 @@ class DataBase: NSObject {
     private var base:[Question]{
         guard let path = Bundle.main.path(forResource: "DataBase", ofType: "json") else {return []}
         do{
-            print(path)
             let data = try Data(contentsOf: URL(fileURLWithPath: path))
             
             let questionData = try JSONDecoder().decode(QuestionData.self,from: data)
