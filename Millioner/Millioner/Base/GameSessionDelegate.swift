@@ -19,5 +19,10 @@ class GameSessionDelegate: GameSessionProtocol {
             Game.instance.gameSession?.answerRight = rightAnswers
         }
     }
+    func endGame(){
+        guard let session = Game.instance.gameSession else {return}
+        session.prize = prize
+        Game.instance.endGame(session: session)
+    }
     init() {}
 }

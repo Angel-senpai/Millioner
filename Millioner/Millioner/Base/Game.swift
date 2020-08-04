@@ -29,4 +29,8 @@ class Game: NSObject{
     func setGameSession(session: GameSession) {
         self.gameSession = session
     }
+    func endGame(session: GameSession) {
+        sessions.append(session)
+        gameSession = nil
+    }
 }

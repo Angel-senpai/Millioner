@@ -18,12 +18,11 @@ class GameViewController: UIViewController {
     var questCounter = 0{
         didSet(newValue){
             if newValue >= gameSession.questions.count - 1{
-                delegate.rightAnswers = questCounter
-                delegate.prize = questCounter
                 endGame()
             }else{
                 changeAswerLabel(text: gameSession.questions[questCounter].answer)
                 for (i,j) in gameSession.questions[questCounter].answerOptions.enumerated(){
+                    gameQuestionViews[i].selected = false
                     gameQuestionViews[i].label.text = j.key
                     gameQuestionViews[i].answerTrue = j.value
                 }
@@ -119,7 +118,7 @@ class GameViewController: UIViewController {
     }
     
     private func endGame(){
-        Game.instance.gameSession = nil
+        delegate.endGame()
         self.dismiss(animated: true, completion: nil)
     }
     

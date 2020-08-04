@@ -22,9 +22,10 @@ class QuestionView: UIView{
         }
     }
     
-    init(frame: CGRect,answer: String,_ true: Bool) {
+    init(frame: CGRect,answer: String,_ answerTrue: Bool) {
         super.init(frame: frame)
         self.frame = frame
+        self.answerTrue = answerTrue
         self.layer.cornerRadius = self.frame.height / 2
         self.layer.borderWidth = 3
         self.layer.borderColor = #colorLiteral(red: 1, green: 1, blue: 1, alpha: 0)

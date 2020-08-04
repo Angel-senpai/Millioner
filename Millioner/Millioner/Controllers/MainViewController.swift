@@ -39,7 +39,6 @@ class MainViewController: UIViewController {
         label.sizeToFit()
         label.center = CGPoint(x: self.view.frame.width / 2, y: self.view.frame.height * 0.2)
         self.view.addSubview(label)
-        
     }
     
     
@@ -69,13 +68,18 @@ class MainViewController: UIViewController {
         buttonResult.center.x = self.view.frame.width / 2
         buttonResult.center.y = buttonStartGame.frame.maxY + buttonResult.frame.height + self.view.frame.width * 0.05
         self.view.addSubview(buttonResult)
+        buttonResult.addTarget(self, action: #selector(getSessions), for: .touchUpInside)
     }
     
+    @objc func getSessions(){
+        GameSessionsCaretaker().retriveSessions().forEach{
+            print($0)
+        }
+    }
     
     @objc private func getStarted(){
         let gameController = GameViewController()
-        Game.instance.gameSession = GameSession()
-        
+        Game.instance.setGameSession(session: GameSession())
         gameController.modalPresentationStyle = .fullScreen
         gameController.modalTransitionStyle = .coverVertical
         self.present(gameController, animated: true, completion: nil)
