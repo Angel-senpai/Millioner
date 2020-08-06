@@ -8,11 +8,26 @@
 
 import UIKit
 
+enum Difficult: Int{
+    case normal
+    case hard
+    
+    var strategy: GameSessionStrategy.Type{
+        switch self {
+        case .hard:
+            return RandomQuestionsStrategy.self
+        case .normal:
+            return StandartQuestionsStrategy.self
+        }
+    }
+}
+
 class MainViewController: UIViewController {
     
     var buttonStartGame: UIButton!
     var buttonResult: UIButton!
     var label: UILabel!
+    var difEnum: Difficult{Difficult.init(rawValue: DataBase.difficultGame) ?? .normal}
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -30,6 +45,7 @@ class MainViewController: UIViewController {
         
         createButtonStartGame(buttonFrame)
         createButtonResult(buttonFrame)
+        createSettingsButton()
         
         label = UILabel()
         label.text = "Кто хочет стать миллионером"
@@ -71,18 +87,61 @@ class MainViewController: UIViewController {
         buttonResult.addTarget(self, action: #selector(getSessions), for: .touchUpInside)
     }
     
-    @objc func getSessions(){
-        GameSessionsCaretaker().retriveSessions().forEach{
-            print($0)
+    private func createSettingsButton(){
+        let frameSize = CGSize(width: self.view.frame.width * 0.1, height: self.view.frame.width * 0.1)
+        let settingsView = UIView(frame: CGRect(origin: CGPoint(), size: frameSize))
+        
+        let image = UIImageView(frame: settingsView.bounds)
+        image.image = #imageLiteral(resourceName: "Settings")
+        settingsView.backgroundColor = .white
+        settingsView.mask = image
+        
+        settingsView.frame.origin.x = self.view.frame.width - settingsView.frame.width - self.view.frame.width * 0.05
+        settingsView.frame.origin.y = self.view.frame.height * 0.1
+        
+        let button = UIButton(frame: settingsView.bounds)
+        settingsView.addSubview(button)
+        button.addAction {
+            [unowned self] in
+            self.createPopUp()
         }
+        
+        self.view.addSubview(settingsView)
+    }
+    
+    @objc func getSessions(){
+        let resultController = ResultViewController()
+        resultController.modalPresentationStyle = .fullScreen
+        resultController.modalTransitionStyle = .crossDissolve
+        self.present(resultController, animated: true, completion: nil)
+    }
+    
+    private func createPopUp(_ closeClouser: (()->())? = nil){
+        if DataBase.firstGame == 0{DataBase.firstGame += 1}
+        let popUp = SelectDifficultyPopUp(difficultChange: self.difEnum)
+        popUp.closeClouser = closeClouser
+        popUp.alpha = 0
+        self.view.addSubview(popUp)
+        UIView.animate(withDuration: 0.5, delay: 0, options: [.curveEaseOut], animations: {popUp.alpha = 1})
     }
     
     @objc private func getStarted(){
-        let gameController = GameViewController()
-        Game.instance.setGameSession(session: GameSession())
-        gameController.modalPresentationStyle = .fullScreen
-        gameController.modalTransitionStyle = .coverVertical
-        self.present(gameController, animated: true, completion: nil)
+        if DataBase.firstGame == 0{
+            createPopUp({ [unowned self] in
+                let gameController = GameViewController()
+                Game.instance.setGameSession(session: GameSession(strategy: self.difEnum.strategy))
+                gameController.modalPresentationStyle = .fullScreen
+                gameController.modalTransitionStyle = .coverVertical
+                self.present(gameController, animated: true, completion: nil)
+            })
+            DataBase.firstGame += 1
+        }else{
+            let gameController = GameViewController()
+            Game.instance.setGameSession(session: GameSession(strategy: self.difEnum.strategy))
+            gameController.modalPresentationStyle = .fullScreen
+            gameController.modalTransitionStyle = .crossDissolve
+            self.present(gameController, animated: true, completion: nil)
+        }
     }
 
 

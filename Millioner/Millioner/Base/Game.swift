@@ -17,11 +17,7 @@ class Game: NSObject{
         }
     }
     private let sessionsCaretaker = GameSessionsCaretaker()
-    var gameSession: GameSession?{
-        didSet{
-            gameSession?.setup()
-        }
-    }
+    var gameSession: GameSession?
     private override init() {
        sessions = sessionsCaretaker.retriveSessions()
     }

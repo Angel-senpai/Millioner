@@ -12,37 +12,41 @@ class DataBase: NSObject {
     static var instance = DataBase()
     private override init() {}
     
-    private var base:[Question]{
-        guard let path = Bundle.main.path(forResource: "DataBase", ofType: "json") else {return []}
+    private var base: QuestionData?{
+        guard let path = Bundle.main.path(forResource: "DataBase", ofType: "json") else {return nil}
         do{
             let data = try Data(contentsOf: URL(fileURLWithPath: path))
             
             let questionData = try JSONDecoder().decode(QuestionData.self,from: data)
-            return questionData.answers
+            return questionData
         }catch{
             print(error.localizedDescription)
         }
         
-        return []
+        return nil
     }
     
-    static func questionGiver()->[Question]{
-        
-        var questionArray = [Question]()
-        
-        for _ in 0..<5{
-            guard let quest = DataBase.instance.base.randomElement() else {return []}
-            var flag = true
-            questionArray.forEach{
-                if quest.answer == $0.answer{
-                    flag = false
-                }
-            }
-            if flag{
-                questionArray.append(quest)
-            }
+    func getBase() -> QuestionData? {
+        return base
+    }
+    
+    static let firstGameKey = "firstGame"
+    static var firstGame: Int{
+        set{
+            UserDefaults.standard.set(newValue, forKey: firstGameKey)
         }
-        
-        return questionArray
+        get{
+            UserDefaults.standard.integer(forKey: firstGameKey)
+        }
+    }
+    
+    static let difficultGameKey = "gameDifficult"
+    static var difficultGame: Difficult.RawValue{
+        set{
+            UserDefaults.standard.set(newValue, forKey: difficultGameKey)
+        }
+        get{
+            UserDefaults.standard.integer(forKey: difficultGameKey)
+        }
     }
 }

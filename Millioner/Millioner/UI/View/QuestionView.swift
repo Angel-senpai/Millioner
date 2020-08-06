@@ -54,9 +54,9 @@ class QuestionView: UIView{
         label = UILabel(frame: self.bounds)
         label.text = text
         label.textAlignment = .center
-        label.font = .boldSystemFont(ofSize: self.frame.width * 0.1)
+        label.font = .boldSystemFont(ofSize: self.frame.width * 0.09)
         label.lineBreakMode = .byWordWrapping
-        label.numberOfLines = 3
+        label.numberOfLines = 2
         self.addSubview(label)
     }
     

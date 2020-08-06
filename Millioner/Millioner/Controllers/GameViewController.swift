@@ -11,24 +11,11 @@ import UIKit
 class GameViewController: UIViewController {
 
     var labelAnswer: UILabel!
+    var labelProcent: UILabel!
     var delegate = GameSessionDelegate()
     var answerButton: UIButton!
     var gameSession: GameSession!
     var gameQuestionViews = [QuestionView]()
-    var questCounter = 0{
-        didSet(newValue){
-            if newValue >= gameSession.questions.count - 1{
-                endGame()
-            }else{
-                changeAswerLabel(text: gameSession.questions[questCounter].answer)
-                for (i,j) in gameSession.questions[questCounter].answerOptions.enumerated(){
-                    gameQuestionViews[i].selected = false
-                    gameQuestionViews[i].label.text = j.key
-                    gameQuestionViews[i].answerTrue = j.value
-                }
-            }
-        }
-    }
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -47,7 +34,34 @@ class GameViewController: UIViewController {
             answerButton.setTitle("Выход", for: .normal)
             return
         }
+        createlabelProcent()
         createQuestionViews(quest: quest)
+        
+        delegate.rightAnswers.addObserver(self,options: [.new,.initial]){[weak self] rAnswers,_  in
+            guard let self = self else {return}
+            self.changeLabelProcent()
+        }
+        
+        delegate.questCounter.addObserver(self,options: [.new,.initial]){
+            [weak self] qCount,_ in
+            guard let self = self else {return}
+            if self.delegate.questCounter.value >= self.gameSession.questions.count - 1{
+                self.endGame()
+            }else{
+                self.changeAswerLabel(text: self.gameSession.questions[qCount].answer)
+                for (i,j) in self.gameSession.questions[qCount].answerOptions.enumerated(){
+                    self.gameQuestionViews[i].selected = false
+                    self.gameQuestionViews[i].label.text = j.key
+                    self.gameQuestionViews[i].answerTrue = j.value
+                }
+            }
+            self.changeLabelProcent()
+        }
+    }
+    
+    private func changeLabelProcent(){
+        self.labelProcent.text = "Вопрос #\(self.delegate.questCounter.value + 1)\nПроцент правильных ответов(\(self.delegate.rightProcent.rounded())%)"
+        self.labelProcent.center = CGPoint(x: self.view.frame.width * 0.65, y: self.view.frame.height * 0.28)
     }
     
     private func createAnswerLabel(){
@@ -58,12 +72,24 @@ class GameViewController: UIViewController {
         labelAnswer.frame.size.height = self.view.frame.width * 0.3
         labelAnswer.frame.size.width = self.view.frame.width * 0.8
         labelAnswer.lineBreakMode = .byWordWrapping
-        labelAnswer.numberOfLines = 3
+        labelAnswer.numberOfLines = 10
         self.view.addSubview(labelAnswer)
     }
+    private func createlabelProcent(){
+        labelProcent = UILabel()
+        labelProcent.textColor = .white
+        labelProcent.frame.size.height = self.view.frame.width * 0.3
+        labelProcent.frame.size.width = self.view.frame.width * 0.7
+        labelProcent.textAlignment = .center
+        labelProcent.lineBreakMode = .byWordWrapping
+        labelProcent.numberOfLines = 5
+        labelProcent.font = .boldSystemFont(ofSize: self.view.frame.width * 0.045)
+        self.view.addSubview(labelProcent)
+    }
+    
     private func changeAswerLabel(text:String){
         labelAnswer.text = text
-        labelAnswer.center = CGPoint(x: self.view.frame.width / 2, y: self.view.frame.height * 0.2)
+        labelAnswer.center = CGPoint(x: self.view.frame.width / 2, y: self.view.frame.height * 0.14)
     }
     
     private func createQuestionViews(quest: Question){
@@ -95,7 +121,7 @@ class GameViewController: UIViewController {
             foundation.addSubview(view)
         }
         foundation.center.x = self.view.frame.width / 2
-        foundation.frame.origin.y = labelAnswer.frame.maxY + self.view.frame.width * 0.09
+        foundation.center.y = self.view.frame.height / 2
         self.view.addSubview(foundation)
     }
     
@@ -118,11 +144,22 @@ class GameViewController: UIViewController {
     }
     
     private func endGame(){
+        labelProcent.isHidden = true
         delegate.endGame()
         self.dismiss(animated: true, completion: nil)
     }
     
-    private func checkAnswers()-> Bool{
+    private func checkSelectingV() -> Bool{
+        var flag = false
+        gameQuestionViews.forEach{
+            if $0.selected{
+                flag = true
+            }
+        }
+        return flag
+    }
+    
+    private func checkAnswers() -> Bool{
         let selectedQuestions = gameQuestionViews.filter{$0.selected}
         var answerIsRight = selectedQuestions.first?.answerTrue ?? false
         for i in selectedQuestions{
@@ -135,11 +172,17 @@ class GameViewController: UIViewController {
     
     
     @objc private func nextQuestion(){
+        if !checkSelectingV() {return}
+        
         if checkAnswers(){
-            delegate.rightAnswers += 1
+            delegate.rAnswer += 1
         }
-        print(delegate.rightAnswers)
-        questCounter += 1
+        gameQuestionViews.forEach{
+            if $0.selected{
+                $0.selectedView()
+            }
+        }
+        delegate.questCounter.value += 1
     }
 
 }

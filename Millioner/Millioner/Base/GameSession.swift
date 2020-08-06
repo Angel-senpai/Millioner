@@ -16,14 +16,9 @@ class GameSession: Codable{
         }
     }
     var prize = 0
-    var rightProcent:Int{ questions.count * answerRight / 100 }
+    var rightProcent:Double{ Double(answerRight) / (Double(questions.count) / 100) }
     
-    func addQuestion(question: Question) {
-        self.questions.append(question)
+    init(strategy: GameSessionStrategy.Type) {
+        questions = strategy.questionGiver()
     }
-    
-    func setup(){
-        questions = DataBase.questionGiver()
-    }
-    
 }

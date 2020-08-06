@@ -8,6 +8,12 @@
 
 import Foundation
 
+enum QuestionDifficult: String {
+    case normal
+    case easy
+    case hard
+}
+
 struct Question: Codable{
     let answer: String
     let answerOptions:[String:Bool]
@@ -15,5 +21,7 @@ struct Question: Codable{
 }
 
 struct QuestionData:Codable {
-    let answers:[Question]
+    let normal:[Question]
+    let easy:[Question]
+    let hard:[Question]
 }

@@ -10,6 +10,6 @@ import Foundation
 
 
 protocol GameSessionProtocol {
-    var rightAnswers: Int { get }
+    var rightAnswers: Observable<Int> { get }
     var prize: Int { get }
 }
